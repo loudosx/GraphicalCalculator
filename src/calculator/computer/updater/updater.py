@@ -125,44 +125,37 @@ class Updater:
             operator: list(
                 map(
                     int,
-                    list(map(
-                        lambda x: str(x).replace(
-                            str(updated_dic_elements['operators'][operator][i]),
-                            str(
-                                self._dic_elements['operators'][operator][i] -
-                                diff_dic_elements['operators'][operator][i])
-                        ),
-                        updated_dic_elements['operators'][operator])
+                    list(
+                        map(
+                            lambda x: x - diff_dic_elements['operators'][operator][i],
+                        updated_dic_elements['operators'][operator]
+                        )
                     )
-                )
-            )
-            if self._dic_elements['operators'][operator][i] > pos
+                )) if self._dic_elements['operators'][operator][i] > pos
             else list(
                 map(
                     int,
                     list(
                         map(
-                            lambda x: str(x).replace(
-                                str(updated_dic_elements['operators'][operator][i]),
-                                str(self._dic_elements['operators'][operator][i])
-                            ),
-                            updated_dic_elements['operators'][operator])
-                    )
+                            lambda x: updated_dic_elements['operators'][operator][i],
+                                updated_dic_elements['operators'][operator]
+                        )
+                    ),
                 )
-            ) for operator in self._dic_elements['operators']
-            for i in range(len(self._dic_elements['operators'][operator]))}
+            )
+            for operator in updated_dic_elements['operators']
+            for i in range(len(updated_dic_elements['operators'][operator]))
+        }
+
         updated_dic_elements['operands'] = {
             operand: list(
                 map(
                     int,
                     list(
                         map(
-                            lambda x: str(x).replace(
-                                str(updated_dic_elements['operands'][operand][i]),
-                                str(self._dic_elements['operands'][operand][i] -
-                                    diff_dic_elements['operands'][operand][i])
-                            ),
-                            updated_dic_elements['operands'][operand])
+                            lambda x: x - diff_dic_elements['operands'][operand][i],
+                                updated_dic_elements['operands'][operand]
+                        )
                     )
                 )
             )
@@ -172,16 +165,17 @@ class Updater:
                     int,
                     list(
                         map(
-                            lambda x: str(x).replace(
-                                str(updated_dic_elements['operands'][operand][i]),
-                                str(self._dic_elements['operands'][operand][i])
-                            ),
-                            updated_dic_elements['operands'][operand])
-                    )
+                            lambda x: updated_dic_elements['operands'][operand][i],
+                                updated_dic_elements['operands'][operand]
+                        )
+                    ),
                 )
-            ) for operand in self._dic_elements['operands']
-            for i in range(len(self._dic_elements['operands'][operand]))}
+            ) for operand in updated_dic_elements['operands']
+            for i in range(len(updated_dic_elements['operands'][operand]))
+        }
 
+        print(updated_dic_elements['operands'])
+        self._dic_elements = updated_dic_elements
         return updated_dic_elements
 
     def update_calculation_string(self, pos: int, res: str):
