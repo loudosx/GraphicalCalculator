@@ -2,141 +2,60 @@
 @Author: Lou DOS
 @Date: 2023-03-18
 @Last modified by: Lou DOS
-@Last modified at: 2023-03-19 22:16:15
+@Last modified at: 2023-03-19
 @Purpose: Compute the content of the calculation string recovered from the Calculator App's display
 box.
 """
-from src.calculator.computer.updater.updater import Updater
 
 
 class Computer:
-    def __init__(self, dic_elements: dict, nb_op: int, calculation_str=None):
-        self._dic_elements = dic_elements
-        self._calculation_str = calculation_str
-        self._nb_op = nb_op
-        self._updater = Updater(self._calculation_str, self._dic_elements)
+    def __init__(self):
+        """ Class to create the calculations' computer."""
+        # Attributes
+        self._operations = {
+            "*": lambda x,y: x*y,
+            "/": lambda x,y: x/y,
+            "-": lambda x,y: x-y,
+            "+": lambda x,y: x+y,
+        }
 
-    def _order_operators(self) -> list:
-        """
-        Orders operators based on the prioritization in maths.
-
-        Returns:
-             list: list of the ordered operators' positions
-        """
-        ordered_operator_positions = list()
-        symbols = [s for s in self._dic_elements['operators']]
-
-        if '*' in symbols:
-            ordered_operator_positions.extend([s for s in self._dic_elements['operators']['*']])
-
-        if '/' in symbols:
-            ordered_operator_positions.extend([s for s in self._dic_elements['operators']['/']])
-
-        if '-' in symbols:
-            ordered_operator_positions.extend([s for s in self._dic_elements['operators']['-']])
-
-        if '+' in symbols:
-            ordered_operator_positions.extend([s for s in self._dic_elements['operators']['+']])
-
-        return ordered_operator_positions
-
-    @staticmethod
-    def _compute_sum(a: float, b: float) -> float:
-        """
-        Computes the sum of two operands.
-
-        Args:
-            a (float): first operand
-            b (float): second operand
-
-        Returns:
-            float: sum of the two operands
-        """
-        return a + b
-
-    @staticmethod
-    def _compute_difference(a: float, b: float) -> float:
-        """
-        Computes the difference of two operands.
-
-        Args:
-            a (float): left operand
-            b (float): right operand
-
-        Returns:
-            float: difference of the two operands
-        """
-        return a - b
-
-    @staticmethod
-    def _compute_division(a: float, b: float) -> float:
-        """
-        Computes the division of two operands.
-
-        Args:
-            a (float): first operand
-            b (float): second operand
-
-        Returns:
-            float: division of the two operands
-        """
-        return a / b
-
-    @staticmethod
-    def _compute_multiplication(a: float, b: float) -> float:
-        """
-        Computes the multiplication of two operands.
-
-        Args:
-            a (float): first operand
-            b (float): second operand
-
-        Returns:
-            float: multiplication of the two operands
-        """
-        return a * b
-
-    def compute_calculation(self) -> str:
+    def _compute_calculation(self, ordered_operators: list, calculation: list) -> str:
         """
         Computes the different calculations.
+
+        Args:
+            ordered_operators (list): positions of operators ordered by priority
+            calculation (list): calculation's string as a list
 
         Returns:
             calculation (str): the result of calculation as a string
         """
-        calculation = 0
+        for i in range(len(ordered_operators)):
+            operator_idx = ordered_operators[i]
 
-        for i in range(self._nb_op):
-            ordered_operator_positions = self._order_operators()
-            ordered_pos = ordered_operator_positions[0]
-            operator = self._calculation_str[ordered_pos]
+            # Calculation
+            left_op, operator, right_op = calculation[operator_idx-1:operator_idx+2]
+            ope_result = self._operations[operator](left_op, right_op)
 
-            l_operand = float(self._calculation_str[ordered_pos-1])
-            r_operand = float(self._calculation_str[ordered_pos+1])
+            # Update
+            calculation = calculation[:operator_idx-1] + calculation[operator_idx+2:]
+            calculation.insert(operator_idx-1, ope_result)
 
-            if operator == '*':
-                calculation = str(Computer._compute_multiplication(l_operand, r_operand))
+            for idx, position in enumerate(ordered_operators):
+                if position > operator_idx:
+                    ordered_operators[idx] -= 2
 
-            if operator == '/':
-                calculation = str(Computer._compute_division(l_operand, r_operand))
+        return str(round(calculation[0], 3))
 
-            if operator == '+':
-                calculation = str(Computer._compute_sum(l_operand, r_operand))
+    def __call__(self, ordered_operators: list, calculation: list) -> str:
+        """
+        Computes calculations.
 
-            if operator == '-':
-                calculation = str(Computer._compute_difference(l_operand, r_operand))
+        Args:
+            ordered_operators (list): positions of operators ordered by priority
+            calculation (list):  calculation's string as a list
 
-            self._calculation_str = self._updater.update_calculation_string(
-                ordered_pos,
-                calculation
-            )
-            self._dic_elements = self._updater.update_key_values(
-                ordered_pos,
-                l_operand,
-                r_operand,
-                operator,
-                calculation
-            )
-
-            self._dic_elements = self._updater.update_value_values(ordered_pos)
-
-        return calculation
+        Returns:
+            str: calculation's result
+        """
+        return self._compute_calculation(ordered_operators, calculation)

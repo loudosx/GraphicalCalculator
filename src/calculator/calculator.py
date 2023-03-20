@@ -2,29 +2,30 @@
 @Author: Lou DOS
 @Date: 2023-03-18
 @Last modified by: Lou DOS
-@Last modified at: 2023-03-19 22:16:15
+@Last modified at: 2023-03-19
 @Purpose: Create the calculator backend.
 """
-# IMPORT: Calculation String Computer
-from src.calculator.computer.computer import Computer
 
-# IMPORT: Calculation String Preparator
-from src.calculator.preparator.preparator import Preparator
+# IMPORTS: Preprocessor & Computer
+from src.calculator.pre_processor import PreProcessor
+from src.calculator.computer import Computer
 
 
 class Calculator:
-    def __init__(self, calculation_str: str):
+    def __init__(self):
         """ Class corresponding to the backend of the graphical calculator. """
-        self._preparator = Preparator(calculation_str)
-        self._dic_elements, self._nb_op = self._preparator.get_elements()
-        self._calculation_str = self._preparator.split_calculation_str(calculation_str)
-        self._computer = Computer(self._dic_elements, self._nb_op, self._calculation_str)
+        self._pre_processor = PreProcessor()
+        self._computer = Computer()
 
-    def __call__(self):
+    def __call__(self, calculation: str) -> str:
         """
-        Computes the different calculations.
+        Computes the calculation string's content.
+
+        Args:
+            calculation (str): calculation's string
 
         Returns:
             calculation (str): the result of calculation as a string
         """
-        return self._computer.compute_calculation()
+        ordered_operators, calculation = self._pre_processor(calculation)
+        return self._computer(ordered_operators, calculation)
